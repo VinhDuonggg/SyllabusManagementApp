@@ -1,0 +1,35 @@
+pipeline {
+    agent any
+    stages {
+        stage('Clone') {
+            steps {
+                git branch: 'main', url: 'https://github.com/VinhDuonggg/SyllabusManagementApp.git'
+            }
+        }
+        stage('Test') {
+            steps {
+                sh 'dotnet build Syllabusmanagement.sln'
+            }
+        }
+    }
+    post {
+        success {
+            mail bcc: '', 
+                 body: 'BUILD AND TEST SUCCESS', 
+                 cc: 'vinhduongggg137@gmail.com', 
+                 from: '', 
+                 replyTo: '', 
+                 subject: 'Build notification', 
+                 to: 'vinhduongggg137@gmail.com'
+        }
+        failure {
+            mail bcc: '', 
+                 body: 'BUILD AND TEST FAIL', 
+                 cc: 'vinhduongggg137@gmail.com', 
+                 from: '', 
+                 replyTo: '', 
+                 subject: 'Build notification', 
+                 to: 'vinhduongggg137@gmail.com'
+        }
+    }
+}
