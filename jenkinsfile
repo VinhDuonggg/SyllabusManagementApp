@@ -6,30 +6,41 @@ pipeline {
                 git branch: 'main', url: 'https://github.com/VinhDuonggg/SyllabusManagementApp.git'
             }
         }
-        stage('Test') {
+        stage('Build') {
             steps {
-                sh 'dotnet build Syllabusmanagement.sln'
+                bat 'dotnet build Syllabusmanagement.sln --configuration Release'
+            }
+        }
+        stage('Publish') {
+            steps {
+                bat 'dotnet publish Syllabusmanagement.sln -c Release -o C:\\Deploy\\SyllabusManagementApp'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                script {
+                    // Dừng ứng dụng cũ (nếu đang chạy)
+                    bat 'taskkill /F /IM SyllabusManagementApp.exe || echo "No running process"'
+                    
+                    // Chạy ứng dụng mới
+                    bat 'start /B C:\\Deploy\\SyllabusManagementApp\\SyllabusManagementApp.exe'
+                    
+                    // Expose qua Ngrok
+                    bat 'start /B ngrok http 5000'
+                }
             }
         }
     }
     post {
         success {
-            mail bcc: '', 
-                 body: 'BUILD AND TEST SUCCESS', 
-                 cc: 'vinhduongggg137@gmail.com', 
-                 from: '', 
-                 replyTo: '', 
-                 subject: 'Build notification', 
-                 to: 'vinhduongggg137@gmail.com'
+            mail to: 'vinhduongggg137@gmail.com',
+                 subject: 'Deploy Success',
+                 body: 'Ứng dụng đã được deploy thành công và truy cập qua Ngrok!'
         }
         failure {
-            mail bcc: '', 
-                 body: 'BUILD AND TEST FAIL', 
-                 cc: 'vinhduongggg137@gmail.com', 
-                 from: '', 
-                 replyTo: '', 
-                 subject: 'Build notification', 
-                 to: 'vinhduongggg137@gmail.com'
+            mail to: 'vinhduongggg137@gmail.com',
+                 subject: 'Deploy Failed',
+                 body: 'Có lỗi xảy ra trong quá trình build hoặc deploy.'
         }
     }
 }
