@@ -32,15 +32,18 @@ pipeline {
         }
     }
     post {
-        success {
-            mail to: 'vinhduongggg137@gmail.com',
-                 subject: 'Deploy Success',
-                 body: 'Ứng dụng đã được deploy thành công và truy cập qua Ngrok!'
-        }
-        failure {
-            mail to: 'vinhduongggg137@gmail.com',
-                 subject: 'Deploy Failed',
-                 body: 'Có lỗi xảy ra trong quá trình build hoặc deploy.'
-        }
+    success {
+        emailext(
+            subject: "✅ BUILD & DEPLOY SUCCESS - ${env.JOB_NAME}",
+            body: "Ứng dụng đã deploy thành công!\nXem tại: https://your-ngrok-url.ngrok-free.app",
+            to: "vinhduongggg137@gmail.com"
+        )
+    }
+    failure {
+        emailext(
+            subject: "❌ BUILD FAILED - ${env.JOB_NAME}",
+            body: "Có lỗi xảy ra khi build.\nKiểm tra logs tại: ${env.BUILD_URL}",
+            to: "vinhduongggg137@gmail.com"
+        )
     }
 }
